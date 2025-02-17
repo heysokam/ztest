@@ -25,7 +25,7 @@ pub const err    = std.testing.expectError;
 pub const log    = struct {
   pub const info = std.debug.print;
 };
-pub fn eq     (value :anytype, expected :anytype) !void { try ztest.ok(ztest.check.eq(value, expected)); }
+pub fn eq     (value :anytype, expected :anytype) !void { try std.testing.expectEqual(expected, value); }
 pub fn eq_str (value :anytype, expected :anytype) !void { try std.testing.expectEqualStrings(expected, value); }
 pub const not = struct {
   pub fn ok (value :bool) !void { try ztest.ok(!value); }
