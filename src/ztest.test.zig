@@ -8,13 +8,12 @@ const it    = ztest.it;
 //______________________________________
 // @section Validate Usage
 //____________________________
-const BaseCases = ztest.title("ztest | Base Functionality");
+var  BaseCases = ztest.title("ztest | Base Functionality");
 test BaseCases { BaseCases.begin(); defer BaseCases.end();
 
-const Expected = error.HelloIt;
-try ztest.err(Expected,
+try ztest.err(error.HelloIt,
   it("should run with an error", struct { fn f() !void {
-    return Expected;
+    return error.HelloIt;
   }}.f)
 );
 

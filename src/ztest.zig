@@ -61,24 +61,27 @@ const Prefix = struct {
 //______________________________________
 // @section Title Tools
 //____________________________
+var currentID :?*u32= null;
 pub const Title = struct {
   data :ztest.string,
+  id   :u32= 0,
   pub fn create (data :ztest.string) ztest.Title { return .{.data= data}; }
-  pub fn begin (T :*const ztest.Title) void { ztest.log.info("{s}Testing {s} ...\n",   .{ztest.Prefix.cli, T.data}); }
-  pub fn end   (T :*const ztest.Title) void { ztest.log.info("{s}Done testing {s}.\n", .{ztest.Prefix.cli, T.data}); }
+  pub fn begin (T :*ztest.Title) void { ztest.log.info("{s}Testing {s} ...\n",   .{ztest.Prefix.cli, T.data}); currentID = &T.id; }
+  pub fn end   (T :*ztest.Title) void { ztest.log.info("{s}Done testing {s}.\n", .{ztest.Prefix.cli, T.data}); currentID = null; }
 };
 pub const title = Title.create;
 
 //______________________________________
 // @section Describe Tools
 //____________________________
-fn pass (comptime msg :ztest.string) void { ztest.log.info("{s}{s}\n", .{ztest.Prefix.pass, msg}); }
-fn fail (e :anyerror, comptime msg :ztest.string) anyerror { ztest.log.info("{s}{s}: {s}\n", .{ztest.Prefix.fail, @errorName(e), msg}); return e; }
+fn pass (comptime msg :ztest.string) void { ztest.log.info("{s}{?d:0>2} | {s}\n", .{ztest.Prefix.pass, currentID.?.*, msg}); }
+fn fail (e :anyerror, comptime msg :ztest.string) anyerror { ztest.log.info("{s}{s}: {?d:0>2} | {s}\n", .{ztest.Prefix.fail, @errorName(e), currentID.?.*, msg}); return e; }
 
 pub fn it (
     comptime msg       : ztest.string,
     comptime statement : ztest.Fn,
   ) !void {
+  currentID.?.* = if (currentID == null) 0 else currentID.?.* + 1;
   statement() catch |e| { return ztest.fail(e, msg); };
   ztest.pass(msg);
 }
