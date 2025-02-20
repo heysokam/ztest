@@ -54,6 +54,7 @@ pub const check = struct {
 const Prefix = struct {
   const pass = " ✓  ";
   const skip = "    ";
+  const todo = " ?  ";
   const fail = "[𐄂] ";
   const name = "[߹] ztest";
   const cli  = ztest.Prefix.name++": ";
@@ -75,8 +76,9 @@ pub const title = Title.create;
 //______________________________________
 // @section Describe Tools
 //____________________________
-fn _skip (comptime msg :ztest.string) void { ztest.log.info("{s}{?d:0>2} [skip] | {s}\n", .{ztest.Prefix.skip, currentID.?.*, msg}); }
 fn pass  (comptime msg :ztest.string) void { ztest.log.info("{s}{?d:0>2} | {s}\n", .{ztest.Prefix.pass, currentID.?.*, msg}); }
+fn _skip (comptime msg :ztest.string) void { ztest.log.info("{s}{?d:0>2} [skip] | {s}\n", .{ztest.Prefix.skip, currentID.?.*, msg}); }
+fn _todo (comptime msg :ztest.string) void { ztest.log.info("{s}[todo] {s}\n", .{ztest.Prefix.todo, msg}); }
 fn fail  (e :anyerror, comptime msg :ztest.string) anyerror { ztest.log.info("{s}{s}: {?d:0>2} | {s}\n", .{ztest.Prefix.fail, @errorName(e), currentID.?.*, msg}); return e; }
 
 pub fn it (
@@ -97,3 +99,14 @@ pub const skip = struct {
     ztest._skip(msg);
   }
 };
+
+pub const todo = struct {
+  pub fn it (
+      comptime msg : ztest.string,
+      comptime _   : ztest.Fn,
+    ) !void {
+    currentID.?.* = if (currentID == null) 0 else currentID.?.* + 1;
+    ztest._todo(msg);
+  }
+};
+
