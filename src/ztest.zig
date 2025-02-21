@@ -64,6 +64,8 @@ const Prefix = struct {
 // @section Title Tools
 //____________________________
 var currentID :?*u32= null;
+fn incr () void { currentID.?.* = if (currentID == null) 0 else currentID.?.* + 1; }
+//__________________
 pub const Title = struct {
   data :ztest.string,
   id   :u32= 0,
@@ -85,7 +87,7 @@ pub fn it (
     comptime msg       : ztest.string,
     comptime statement : ztest.Fn,
   ) !void {
-  currentID.?.* = if (currentID == null) 0 else currentID.?.* + 1;
+  ztest.incr();
   statement() catch |e| { return ztest.fail(e, msg); };
   ztest.pass(msg);
 }
@@ -95,7 +97,7 @@ pub const skip = struct {
       comptime msg : ztest.string,
       comptime _   : ztest.Fn,
     ) !void {
-    currentID.?.* = if (currentID == null) 0 else currentID.?.* + 1;
+    ztest.incr();
     ztest._skip(msg);
   }
 };
@@ -105,8 +107,17 @@ pub const todo = struct {
       comptime msg : ztest.string,
       comptime _   : ztest.Fn,
     ) !void {
-    currentID.?.* = if (currentID == null) 0 else currentID.?.* + 1;
+    ztest.incr();
     ztest._todo(msg);
+  }
+};
+
+pub const hide = struct {
+  pub fn it (
+      comptime _: ztest.string,
+      comptime _: ztest.Fn,
+    ) !void {
+    ztest.incr();
   }
 };
 
